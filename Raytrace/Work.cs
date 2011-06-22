@@ -34,6 +34,16 @@ namespace Raytrace
 			var s = new XmlSerializer(typeof(Work));
 			return (Work)s.Deserialize (r);
 		}
+		
+		public void Execute (Random r, PixelBuffer pb) {
+			
+			for (var py = 0; py < Height; py++) {
+				for (var px = 0; px < Width; px++) {
+					pb.PutPixel (px, py, new Vec(r.NextDouble (),r.NextDouble (),r.NextDouble ()));
+				}
+			}
+			
+		}
 	}
 }
 

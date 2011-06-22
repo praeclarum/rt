@@ -153,7 +153,9 @@ namespace Raytrace
 					}
 				}
 			}
-			catch (WebException) {
+			catch (Exception ex) {
+				System.Console.WriteLine ("!! {0}: {1}", ex.GetType ().Name, ex.Message);
+				throw;
 			}
 			finally {
 				listener.BeginGetContext (OnContext, null);

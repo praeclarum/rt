@@ -1,8 +1,10 @@
 using System;
-using System.Xml.Serialization;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Xml.Serialization;
+
+using Prec = System.Double;
 
 namespace Raytrace
 {
@@ -10,18 +12,21 @@ namespace Raytrace
 	public class Scene
 	{
 		[XmlAttribute]
-		public int ImageWidth { get; set; }
+		public int ImageWidth;
+		
 		[XmlAttribute]
-		public int ImageHeight { get; set; }
+		public int ImageHeight;
 		
-		public Camera Camera { get; set; }
+		[XmlAttribute]
+		public int SamplesPerPixel;
 		
-		public List<SceneObj> Objects { get; set; }
+		public Ray Camera;
+		
+		public List<SceneObject> Objects;
 		
 		public Scene ()
 		{
-			Camera = new Camera ();
-			Objects = new List<SceneObj> ();
+			Objects = new List<SceneObject> ();
 		}
 		
 		public void SaveXml (Stream s) {
@@ -48,24 +53,44 @@ namespace Raytrace
 	}
 	
 	[Serializable]
-	public class Camera {
-		public Vec Position;
-		public Vec Direction;
+	public enum MaterialType {
+		Diffuse,
+		Specular,
+		Transmissive,
 	}
 	
 	[Serializable]
-	[XmlInclude(typeof(SphereObj))]
-	public abstract class SceneObj
+	[XmlInclude(typeof(Sphere))]
+	public abstract class SceneObject
 	{
-		public SceneObj () {
+		public Vec Emission;
+		public Vec Color;
+		public MaterialType Material;
+		
+		public SceneObject () {}
+		
+		public SceneObject (Vec emission, Vec color, MaterialType mat)
+		{
+			Emission = emission;
+			Color = color;
+			Material = mat;
 		}
 	}
 	
 	[Serializable]
-	public class SphereObj : SceneObj
+	public class Sphere : SceneObject
 	{
-		public Vec Center;
-		public float Radius;
+		public Vec Position;
+		public Prec Radius;
+		
+		public Sphere () {}
+		
+		public Sphere (Prec radius, Vec position, Vec emission, Vec color, MaterialType mt)
+			: base (emission, color, mt)
+		{
+			Radius = radius;
+			Position = position;
+		}
 	}
 }
 

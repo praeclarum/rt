@@ -7,26 +7,9 @@ using Prec = System.Double;
 
 namespace Raytrace.FirstRayTracer
 {
-	class Ray
-	{
-		public Vec Origin;
-		public Vec Normal;
-
-		public Ray ()
-		{
-		}
-
-		public Ray (Vec orig, Vec dest)
-		{
-			Origin = orig;
-			Normal = dest - orig;
-			Normal.Normalize ();
-		}
-	}
-
 	class Intersection
 	{
-		public SceneObject Object;
+		public SceneObject1 Object;
 		public Ray Ray;
 		public Prec RayT;
 		public Vec Point;
@@ -36,7 +19,7 @@ namespace Raytrace.FirstRayTracer
 		public void Set (Prec t, Vec n, Material mat)
 		{
 			RayT = t;
-			Point = Ray.Origin + Ray.Normal * t;
+			Point = Ray.Origin + Ray.Direction * t;
 			Normal = n;
 			Material = mat;
 		}
@@ -69,21 +52,21 @@ namespace Raytrace.FirstRayTracer
 		};
 	}
 
-	abstract class SceneObject
+	abstract class SceneObject1
 	{
 		public Material Material;
 
 		public abstract bool Intersect (Ray ray, Intersection isec);
 	}
 
-	class Plane : SceneObject
+	class Plane1 : SceneObject1
 	{
 		public Vec Normal;
 		public Vec Position;
 
 		public override bool Intersect (Ray ray, Intersection isec)
 		{
-			var d = ray.Normal.Dot (Normal);
+			var d = ray.Direction.Dot (Normal);
 			if (d == 0)
 				return false;
 			var t = (Position - ray.Origin).Dot (Normal) / d;
@@ -92,7 +75,7 @@ namespace Raytrace.FirstRayTracer
 		}
 	}
 
-	class Sphere : SceneObject
+	class Sphere1 : SceneObject1
 	{
 		public Vec Center;
 		public double Radius;
@@ -100,7 +83,7 @@ namespace Raytrace.FirstRayTracer
 		public override bool Intersect (Ray ray, Intersection isec)
 		{
 			var a = 1;
-			var b = 2 * ray.Normal.Dot (ray.Origin - Center);
+			var b = 2 * ray.Direction.Dot (ray.Origin - Center);
 			var c = Center.Dot (Center) + ray.Origin.Dot (ray.Origin) - 2 * (Center.Dot (ray.Origin)) - Radius * Radius;
 
 			var d = b * b - 4 * a * c;
@@ -123,7 +106,7 @@ namespace Raytrace.FirstRayTracer
 					t = t2;
 			}
 
-			var p = ray.Origin + ray.Normal * t;
+			var p = ray.Origin + ray.Direction * t;
 			var n = (p - Center);
 			n.Normalize ();
 
@@ -151,33 +134,33 @@ namespace Raytrace.FirstRayTracer
 				Position = new Vec(4, 4, 2),
 			},
 		};
-		SceneObject[] Objects = new SceneObject[] {
-			new Plane () {
+		SceneObject1[] Objects = new SceneObject1[] {
+			new Plane1 () {
 				Normal = new Vec(0, 0, 1),
 				Position = new Vec (0, 0, -5),
 				Material = Material.Red
 			},
-			new Plane () {
+			new Plane1 () {
 				Normal = new Vec(1, 0, 0),
 				Position = new Vec (-5, 0, 0),
 				Material = Material.Green
 			},
-			new Plane () {
+			new Plane1 () {
 				Normal = new Vec(-1, 0, 0),
 				Position = new Vec (5, 0, 0),
 				Material = Material.Green
 			},
-			new Plane () {
+			new Plane1 () {
 				Normal = new Vec(0, 1, 0),
 				Position = new Vec (0, -5, 0),
 				Material = Material.Blue
 			},
-			new Plane () {
+			new Plane1 () {
 				Normal = new Vec(0, -1, 0),
 				Position = new Vec (0, 5, 0),
 				Material = Material.Blue
 			},
-			new Sphere () {
+			new Sphere1 () {
 				Center = new Vec(2, 2, -3),
 				Radius = 3,
 				Material = Material.Pink
@@ -254,7 +237,7 @@ namespace Raytrace.FirstRayTracer
 				var l = isec.Point.NormalTo (light.Position);
 				var v = isec.Point.NormalTo (CameraCenter);
 				var r = isec.Normal;
-				if (isec.Normal.Dot (sray.Normal) > 0) {
+				if (isec.Normal.Dot (sray.Direction) > 0) {
 					var s = ShadowCoefficient (isec.Point, light.Position);
 					var fatt = (Prec)1;
 					color += (mat.DiffuseColor * (mat.DiffuseCoefficient * isec.Normal.Dot (l)) + 
@@ -310,7 +293,7 @@ namespace Raytrace.FirstRayTracer
 						v.Normalize ();
 
 						ray.Origin = r0;
-						ray.Normal = v;
+						ray.Direction = v;
 
 						col += Trace (ray, 1);
 					}

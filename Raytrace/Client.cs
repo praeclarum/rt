@@ -18,6 +18,7 @@ namespace Raytrace
 				try {
 					var w = default(Work);
 					var req = WebRequest.Create (host + "work");
+					req.Timeout = 10000;
 					using (var resp = req.GetResponse ()) {
 						using (var s = resp.GetResponseStream ()) {
 							w = Work.Open (s);
@@ -26,14 +27,9 @@ namespace Raytrace
 					
 					System.Console.WriteLine ("Working on " + w.Id);
 					
-					var r = new Random ();
+					var r = new Random (w.X*w.X*w.X + w.Y*w.Y*w.Y);
 					var pb = new PixelBuffer (w.Width, w.Height);
-					var col = new Vec(r.NextDouble (),r.NextDouble (),r.NextDouble ());
-					for (var py = 0; py < w.Height; py++) {
-						for (var px = 0; px < w.Width; px++) {
-							pb.PutPixel (px, py, col);
-						}
-					}
+					w.Execute (r, pb);
 					
 					req = WebRequest.Create (host + "work/" + w.Id + "/pixels");
 					req.Method = "POST";
@@ -57,6 +53,13 @@ namespace Raytrace
 						System.Console.WriteLine ("! {0}: {1}", ex.GetType ().Name, ex.Message);
 						System.Threading.Thread.Sleep (50);
 					}
+				}
+				catch (System.Threading.ThreadAbortException) {
+					throw;
+				}
+				catch (Exception ex) {
+					System.Console.WriteLine (ex);
+					throw;
 				}
 			}
 		}
