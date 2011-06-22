@@ -26,6 +26,15 @@ namespace Raytrace
 		{
 			return X * b.X + Y * b.Y + Z * b.Z;
 		}
+		
+		public Vec Cross (Vec b)
+		{
+			return new Vec (
+				Y*b.Z - Z*b.Y,
+				Z*b.X - X*b.Z,
+				X*b.Y - Y*b.X
+			);
+		}
 
 		public Prec Length {
 			get { return (Prec)Math.Sqrt (X * X + Y * Y + Z * Z); }
