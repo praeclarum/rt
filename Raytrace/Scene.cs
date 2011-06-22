@@ -9,6 +9,11 @@ namespace Raytrace
 	[Serializable]
 	public class Scene
 	{
+		[XmlAttribute]
+		public int ImageWidth { get; set; }
+		[XmlAttribute]
+		public int ImageHeight { get; set; }
+		
 		public Camera Camera { get; set; }
 		
 		public List<SceneObj> Objects { get; set; }

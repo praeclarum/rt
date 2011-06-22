@@ -10,21 +10,24 @@ namespace Raytrace
 	public class Server
 	{
 		HttpListener listener;
+		int port;
 		
 		Scene scene;
 		
 		List<Work> work;
 		
-		public Server (Scene sc, int w, int h)
+		public Server (int port, Scene sc)
 		{
-			finalBuffer = new PixelBuffer(w, h);
+			this.port = port;
+			
+			finalBuffer = new PixelBuffer(sc.ImageWidth, sc.ImageHeight);
 			work = new List<Work>();
 			scene = sc;
 			
 			var workNumX = 10;
 			var workNumY = 10;
-			var workWidth = w / workNumX;
-			var workHeight = h / workNumY;
+			var workWidth = sc.ImageWidth / workNumX;
+			var workHeight = sc.ImageHeight / workNumY;
 			
 			for (var yi = 0; yi < workNumY; yi++) {
 				for (var xi = 0; xi < workNumX; xi++) {
@@ -34,8 +37,6 @@ namespace Raytrace
 						Id = work.Count,
 						Finished = false,
 						Scene = scene,
-						ImageWidth = w,
-						ImageHeight = h,
 						Width = workWidth,
 						Height = workHeight,
 						X = x,
@@ -52,7 +53,7 @@ namespace Raytrace
 		public void Run ()
 		{			
 			listener = new HttpListener ();
-			var p = "http://+:8082/";
+			var p = "http://+:" + port + "/";
 			listener.Prefixes.Add (p);
 			listener.Start ();
 			System.Console.WriteLine ("Serving {0}...", p);

@@ -17,9 +17,6 @@ namespace Raytrace
 		public bool HandedOut;		
 		
 		[XmlAttribute]
-		public int ImageWidth, ImageHeight;
-
-		[XmlAttribute]
 		public int X, Y, Width, Height;
 		
 		public Scene Scene;		
