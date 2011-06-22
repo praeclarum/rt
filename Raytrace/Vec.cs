@@ -35,6 +35,15 @@ namespace Raytrace
 				X*b.Y - Y*b.X
 			);
 		}
+		
+		public Vec Mult (Vec b)
+		{
+			return new Vec (
+				X * b.X,
+				Y * b.Y,
+				Z * b.Z
+			);
+		}
 
 		public Prec Length {
 			get { return (Prec)Math.Sqrt (X * X + Y * Y + Z * Z); }

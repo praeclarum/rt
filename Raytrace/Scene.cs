@@ -29,6 +29,23 @@ namespace Raytrace
 			Objects = new List<SceneObject> ();
 		}
 		
+		public bool Intersect (Ray ray, out Prec t, out SceneObject obj)
+		{
+			var inf = 1.0e20;
+			var tt = inf;
+			var oo = default(SceneObject);
+			foreach (var o in Objects) {
+				var d = o.Intersect (ray);
+				if (d != 0 && d < tt) {
+					tt = d;
+					oo = o;
+				}
+			}
+			t = tt;
+			obj = oo;
+			return tt < inf;
+		}
+		
 		public void SaveXml (Stream s) {
 			using (var w = new StreamWriter (s, Encoding.UTF8)) {
 				SaveXml (w);
@@ -75,6 +92,9 @@ namespace Raytrace
 			Color = color;
 			Material = mat;
 		}
+		
+		public abstract double Intersect (Ray ray);
+		public abstract Vec GetNormal (Vec p);
 	}
 	
 	[Serializable]
@@ -90,6 +110,25 @@ namespace Raytrace
 		{
 			Radius = radius;
 			Position = position;
+		}
+		
+		public override double Intersect (Ray ray)
+		{
+			var op = Position - ray.Origin;
+			var eps = 1.0e-4;
+			var b = op.Dot (ray.Direction);
+			var det = b*b - op.Dot (op) + Radius*Radius;
+			if (det < 0) return 0;
+			det = Math.Sqrt (det);
+			var t = b - det;
+			if (t > eps) return t;
+			t = b + det;
+			return (t > eps) ? t : 0;
+		}
+		
+		public override Vec GetNormal (Vec p)
+		{
+			return (p - Position).Norm;
 		}
 	}
 }
